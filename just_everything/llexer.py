@@ -29,7 +29,7 @@ class LLexer():
     def get_next_token(self):
 
         if self.curr_char == '':
-            return
+            return LToken("LEXICAL EOF ERROR", LToken.ERROR)
 
         while self.curr_char.isspace():
             self.curr_char = self._next_char()

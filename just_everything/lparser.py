@@ -10,7 +10,7 @@ from ltoken import LToken
 
 class LParser():
     def __init__(self, lexer: LLexer):
-        self.stack = []
+        # self.stack = []
         self.lexer = lexer
         self.curr_token = LToken('', LToken.ERROR)
 
@@ -21,8 +21,8 @@ class LParser():
         # Make sure the intermediate code ends with a newline
     
     def error(self):
-        print("SYNTAX ERROR")
-        exit(1)
+        print("Syntax error")
+        raise SyntaxError
     
     def next_token(self): 
         self.curr_token = self.lexer.get_next_token()
@@ -31,7 +31,7 @@ class LParser():
 
     def statements(self):
         if self.curr_token.token_code == LToken.ID:
-            self.stack.append(f"PUSH {self.curr_token.lexeme}")
+            print(f"PUSH {self.curr_token.lexeme}")
             self.next_token()
             self.statement()
             if self.curr_token.token_code == LToken.SEMICOL:
@@ -43,10 +43,11 @@ class LParser():
         elif self.curr_token.token_code == LToken.PRINT:
             self.next_token()
             if self.curr_token.token_code == LToken.ID:
-                self.stack.append(f"PUSH {self.curr_token.lexeme}")
-                self.stack.append("PRINT")
+                print(f"PUSH {self.curr_token.lexeme}")
+                print("PRINT")
+            else:
+                self.error()
             self.next_token()
-            self.statement()
             if self.curr_token.token_code == LToken.SEMICOL:
                 self.next_token()
                 self.statements()
@@ -60,38 +61,41 @@ class LParser():
     def statement(self):
         if self.curr_token.token_code == LToken.ASSIGN:
             self.expr()
-            self.stack.append("ASSIGN")
-            # self.stack.append(f"PUSH {self.curr_token.lexeme}")
+            print("ASSIGN")
+            # print(f"PUSH {self.curr_token.lexeme}")
         elif self.curr_token.token_code == LToken.PRINT:
-            self.stack.append("PRINT")
+            print("PRINT")
+        else:
+            self.error()
     
     def expr(self):
         self.term()
         if self.curr_token.token_code == LToken.PLUS:
             self.expr()
-            self.stack.append("ADD")
+            print("ADD")
         elif self.curr_token.token_code == LToken.MINUS:
             self.expr()
-            self.stack.append("SUB")
+            print("SUB")
 
     def term(self):
         self.next_token()
         self.factor()
         if self.curr_token.token_code == LToken.MULT:
             self.term()
-            self.stack.append("MULT")
+            print("MULT")
     
     def factor(self):
         if self.curr_token.token_code == LToken.INT:
-            self.stack.append(f"PUSH {self.curr_token.lexeme}")
+            print(f"PUSH {self.curr_token.lexeme}")
             self.next_token()
 
         elif self.curr_token.token_code == LToken.ID:
-            self.stack.append(f"PUSH {self.curr_token.lexeme}")
+            print(f"PUSH {self.curr_token.lexeme}")
             self.next_token()
 
         elif self.curr_token.token_code == LToken.LPAREN:
             self.expr()
             if self.curr_token.token_code == LToken.RPAREN:
                 self.next_token()
-                # Need to push ?? - dont think so, expression solves itself.
+        else:
+            self.error()
