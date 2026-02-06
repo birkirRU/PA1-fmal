@@ -9,10 +9,10 @@ from ltoken import LToken
 # Factor -> int | id | ( Expr )
 
 class LParser():
-    def __init__(self, lexer):
+    def __init__(self, lexer: LLexer):
         self.stack = []
         self.lexer = lexer
-        self.curr_token = self.next_token()
+        self.curr_token = LToken('', LToken.ERROR)
 
     def parse(self):
         self.next_token() 
@@ -41,7 +41,10 @@ class LParser():
                 self.error()
 
         elif self.curr_token.token_code == LToken.PRINT:
-            self.stack.append(f"PUSH {self.curr_token.lexeme}")
+            self.next_token()
+            if self.curr_token.token_code == LToken.ID:
+                self.stack.append(f"PUSH {self.curr_token.lexeme}")
+                self.stack.append("PRINT")
             self.next_token()
             self.statement()
             if self.curr_token.token_code == LToken.SEMICOL:
@@ -50,14 +53,15 @@ class LParser():
             else:
                 self.error()
         elif self.curr_token.token_code == LToken.END:
-            exit(1)
+            return
         else:
             self.error()
     
     def statement(self):
         if self.curr_token.token_code == LToken.ASSIGN:
             self.expr()
-            self.stack.append(f"PUSH {self.curr_token.lexeme}")
+            self.stack.append("ASSIGN")
+            # self.stack.append(f"PUSH {self.curr_token.lexeme}")
         elif self.curr_token.token_code == LToken.PRINT:
             self.stack.append("PRINT")
     
