@@ -1,9 +1,0 @@
-{
-    "name": "Python: Current File with Redirected Stdin",
-    "type": "python",
-    "request": "launch",
-    "program": "${file}",
-    "console": "integratedTerminal",
-    "cwd": "${fileDirname}",
-    "args": ["<", "program.l"]
-}

@@ -1,76 +1,63 @@
 import sys
 from ltoken import LToken
 
-
-class LLexer():
+class LLexer:
     def __init__(self):
-        self.letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-        self.digits = '0123456789'
-        self.single_char_tokens = {
-            '+': LToken.PLUS,
-            '-': LToken.MINUS,
-            '*': LToken.MULT,
-            '(': LToken.LPAREN,
-            ')': LToken.RPAREN,
-            ';': LToken.SEMICOL,
-            '=': LToken.ASSIGN
+        self.current_character = None
+
+    def skip_whitespace(self):
+        whitespace_chars = {" ", "\t", "\n"}
+        while self.current_character in whitespace_chars:
+            self.current_character = sys.stdin.read(1)
+    
+    def extract_identifier(self):
+        accumulated = ""
+        while self.current_character.isalpha():
+            accumulated += self.current_character
+            self.current_character = sys.stdin.read(1)
+        
+        keyword_map = {
+            'print': LToken.PRINT,
+            'end': LToken.END
         }
-        self.curr_char = self._next_char()
-
-
-    def _next_char(self):
-        """
-        Returns '' for EOF
-        Otherwise next charecter in stdin buffer
-        """
-        return sys.stdin.read(1)
+        
+        token_type = keyword_map.get(accumulated, LToken.ID)
+        return LToken(accumulated, token_type)
+        
+    def extract_number(self):
+        accumulated = ""
+        while self.current_character.isdigit():
+            accumulated += self.current_character
+            self.current_character = sys.stdin.read(1)
+        return LToken(accumulated, LToken.INT)
 
     def get_next_token(self):
-
-        if self.curr_char == '':
-            return LToken("", LToken.ERROR)
-
-        while self.curr_char.isspace():
-            self.curr_char = self._next_char()
+        if self.current_character is None:
+            self.current_character = sys.stdin.read(1)
         
-        if self.curr_char in self.single_char_tokens:
-            token = LToken(self.curr_char, self.single_char_tokens[self.curr_char])
-            self.curr_char = self._next_char()
-            return token
-
-        elif self.curr_char in self.letters:
-            lexeme = self.curr_char
-            while self.curr_char in self.letters and self.curr_char != '':
-                next_char = self._next_char()
-                self.curr_char = next_char
-                lexeme += next_char if self.curr_char in self.letters else ''
-
-            if lexeme == 'print':
-                return LToken(lexeme, LToken.PRINT)
-            elif lexeme == 'end':
-                return LToken(lexeme, LToken.END)
-            elif (not self.curr_char.isspace() and self.curr_char not in self.single_char_tokens):
-                error_token = self.curr_char
-                self.curr_char = self._next_char()
-                return LToken(f"{error_token}", LToken.ERROR)
-
-            return LToken(lexeme, LToken.ID)
+        self.skip_whitespace()
         
-        elif self.curr_char in self.digits:
-            lexeme = self.curr_char
-            while self.curr_char in self.digits and self.curr_char != '':
-                next_char = self._next_char()
-                self.curr_char = next_char
-                lexeme += next_char if self.curr_char in self.digits else ''
-            
-            if (not self.curr_char.isspace() and self.curr_char not in self.single_char_tokens):
-                error_token = self.curr_char
-                self.curr_char = self._next_char()
-                return LToken(f"{error_token}", LToken.ERROR)
-            return LToken(lexeme, LToken.INT)
+        operator_tokens = {
+            "+": LToken.PLUS,
+            "-": LToken.MINUS,
+            "*": LToken.MULT,
+            "(": LToken.LPAREN,
+            ")": LToken.RPAREN,
+            "=": LToken.ASSIGN,
+            ";": LToken.SEMICOL
+        }
         
-        else:
-            error_token = self.curr_char
-            self.curr_char = self._next_char()
-            return LToken(f"{error_token}", LToken.ERROR)
-
+        if self.current_character in operator_tokens:
+            char_value = self.current_character
+            self.current_character = None
+            return LToken(char_value, operator_tokens[char_value])
+        
+        if self.current_character.isalpha():
+            return self.extract_identifier()
+        
+        if self.current_character.isdigit():
+            return self.extract_number()
+        
+        error_char = self.current_character
+        self.current_character = None
+        return LToken(error_char, LToken.ERROR)
