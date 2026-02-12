@@ -1,5 +1,3 @@
-import sys
-sys.path.insert(0, '../src')
 
 from ltoken import LToken
 from llexer import LLexer

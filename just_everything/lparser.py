@@ -1,5 +1,6 @@
 from llexer import LLexer
 from ltoken import LToken
+import sys
 
 # Context-free grammar G for L is:
 # Statements -> Statement ; Statements | end
@@ -22,7 +23,7 @@ class LParser():
     
     def error(self):
         print("Syntax error")
-        raise SyntaxError
+        sys.exit(0)
     
     def next_token(self): 
         self.curr_token = self.lexer.get_next_token()

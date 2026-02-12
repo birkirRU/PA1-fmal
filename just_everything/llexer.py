@@ -28,7 +28,7 @@ class LLexer():
     def get_next_token(self):
 
         if self.curr_char == '':
-            return LToken("LEXICAL EOF ERROR", LToken.ERROR)
+            return LToken("", LToken.ERROR)
 
         while self.curr_char.isspace():
             self.curr_char = self._next_char()
@@ -50,7 +50,9 @@ class LLexer():
             elif lexeme == 'end':
                 return LToken(lexeme, LToken.END)
             elif (not self.curr_char.isspace() and self.curr_char not in self.single_char_tokens):
-                return LToken(f"LEXICAL {self.curr_char} ERROR", LToken.ERROR)
+                error_token = self.curr_char
+                self.curr_char = self._next_char()
+                return LToken(f"{error_token}", LToken.ERROR)
 
             return LToken(lexeme, LToken.ID)
         
@@ -62,9 +64,13 @@ class LLexer():
                 lexeme += next_char if self.curr_char in self.digits else ''
             
             if (not self.curr_char.isspace() and self.curr_char not in self.single_char_tokens):
-                return LToken(f"LEXICAL {self.curr_char} ERROR", LToken.ERROR)
+                error_token = self.curr_char
+                self.curr_char = self._next_char()
+                return LToken(f"{error_token}", LToken.ERROR)
             return LToken(lexeme, LToken.INT)
         
         else:
-            return LToken(f"LEXICAL {self.curr_char} ERROR", LToken.ERROR)
+            error_token = self.curr_char
+            self.curr_char = self._next_char()
+            return LToken(f"{error_token}", LToken.ERROR)
 

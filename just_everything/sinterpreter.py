@@ -70,14 +70,16 @@ class SInterpreter:
 
     def error(self, operator):
         print(f"Error for operator: {operator}")
-        sys.exit()
+        sys.exit(0)
 
 
     def push(self, operand):
-        if operand.isdigit():
+        if isinstance(operand, int):
+            self.stack.append(operand)
+        elif operand.isdigit():
             self.stack.append(int(operand))
         else:
-            value = self.values_dict.get(operand, 0)
+            self.stack.append(self.values_dict.get(operand, 0))
 
 
     def add(self):
@@ -91,12 +93,15 @@ class SInterpreter:
         if isinstance(b, str):
             b = self.values_dict.get(b, 0)
 
+        a = int(a)
+        b = int(b)
+
         self.stack.append(b + a)
+
 
     def sub(self):
         if len(self.stack) < 2:
             self.error("SUB")
-
         a = self.stack.pop()
         b = self.stack.pop()
 
@@ -105,7 +110,11 @@ class SInterpreter:
         if isinstance(b, str):
             b = self.values_dict.get(b, 0)
 
+        a = int(a)
+        b = int(b)
+
         self.stack.append(b - a)
+
 
     def mult(self):
         if len(self.stack) < 2:
@@ -118,7 +127,11 @@ class SInterpreter:
         if isinstance(b, str):
             b = self.values_dict.get(b, 0)
 
+        a = int(a)
+        b = int(b)
+
         self.stack.append(b * a)
+
 
     def assign(self):
         if len(self.stack) < 2:
@@ -126,6 +139,8 @@ class SInterpreter:
         
         value = self.stack.pop()
         var_name = self.stack.pop()
+        if isinstance(value, str):
+            value = self.values_dict.get(value, 0)
 
         if not isinstance(var_name, str):
             self.error("ASSIGN")
