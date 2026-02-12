@@ -1,5 +1,4 @@
 import sys
-import unicodedata
 from ltoken import LToken
 
 
@@ -51,7 +50,7 @@ class LLexer():
             elif lexeme == 'end':
                 return LToken(lexeme, LToken.END)
             elif (not self.curr_char.isspace() and self.curr_char not in self.single_char_tokens):
-                return LToken(f"LEXICAL {unicodedata.name(self.curr_char)} ERROR", LToken.ERROR)
+                return LToken(f"LEXICAL {self.curr_char} ERROR", LToken.ERROR)
 
             return LToken(lexeme, LToken.ID)
         
@@ -63,9 +62,9 @@ class LLexer():
                 lexeme += next_char if self.curr_char in self.digits else ''
             
             if (not self.curr_char.isspace() and self.curr_char not in self.single_char_tokens):
-                return LToken(f"LEXICAL {unicodedata.name(self.curr_char)} ERROR", LToken.ERROR)
+                return LToken(f"LEXICAL {self.curr_char} ERROR", LToken.ERROR)
             return LToken(lexeme, LToken.INT)
         
         else:
-            return LToken(f"LEXICAL {unicodedata.name(self.curr_char)} ERROR", LToken.ERROR)
+            return LToken(f"LEXICAL {self.curr_char} ERROR", LToken.ERROR)
 
